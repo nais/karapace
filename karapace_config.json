@@ -1,0 +1,15 @@
+{
+  "bootstrap_uri": $bootstrap_uri,
+  "client_id": $client_id,
+  "group_id": $group_id,
+  "registry_host": $registry_host,
+  "registry_port": $registry_port,
+  "host": "",
+  "log_level": "INFO",
+  "security_protocol": "SSL",
+  "ssl_cafile": $ssl_cafile,
+  "ssl_certfile": $ssl_certfile,
+  "ssl_keyfile": $ssl_keyfile,
+  "karapace_rest": true,
+  "karapace_registry": false
+}
