@@ -4,7 +4,7 @@
   "group_id": $group_id,
   "registry_host": $registry_host,
   "registry_port": $registry_port,
-  "host": "",
+  "host": "0.0.0.0",
   "log_level": "INFO",
   "security_protocol": "SSL",
   "ssl_cafile": $ssl_cafile,
