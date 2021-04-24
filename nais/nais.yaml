@@ -7,6 +7,7 @@ metadata:
     team: "aura"
 spec:
   image: {{image}}
+  port: 8081
   liveness:
     path: "/"
     port: 8081
