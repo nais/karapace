@@ -3,10 +3,6 @@ name: Create docker image
 on:
   push:
     branch: main
-    paths:
-      - karapace_config.json
-      - launcher.json
-      - '.github/workflows/**'
 
 env:
   "BASEIMAGE": "ghcr.io/${{ github.repository }}"
