@@ -10,9 +10,10 @@ registry_port="${KAFKA_SCHEMA_REGISTRY##*:}" # Drop host part
 cat /app/karapace_config.json
 
 jq --null-input \
+  --arg advertised_hostname "${NAIS_APP_NAME}.${NAIS_NAMESPACE}" \
   --arg bootstrap_uri "${KAFKA_BROKERS}" \
   --arg client_id "$(hostname)" \
-  --arg group_id "$(hostname)" \
+  --arg group_id "${NAIS_CLIENT_ID}" \
   --arg registry_host "${registry_host}" \
   --arg registry_port "${registry_port}" \
   --arg ssl_cafile "${KAFKA_CA_PATH}" \

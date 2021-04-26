@@ -1,4 +1,5 @@
 {
+  "advertised_hostname": $advertised_hostname,
   "bootstrap_uri": $bootstrap_uri,
   "client_id": $client_id,
   "group_id": $group_id,
