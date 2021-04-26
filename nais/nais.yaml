@@ -7,13 +7,10 @@ metadata:
     team: "aura"
 spec:
   image: {{image}}
-  port: 8081
   liveness:
     path: "/"
-    port: 8081
   readiness:
     path: "/brokers"
-    port: 8081
   replicas:
     min: 1
     max: 1

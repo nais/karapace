@@ -5,6 +5,7 @@
   "registry_host": $registry_host,
   "registry_port": $registry_port,
   "host": "0.0.0.0",
+  "port": 8080,
   "log_level": "INFO",
   "security_protocol": "SSL",
   "ssl_cafile": $ssl_cafile,
