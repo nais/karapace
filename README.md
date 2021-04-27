@@ -8,9 +8,9 @@ Aiven uses Karapace to provide a REST API and Schema Registry for their managed 
 Access control
 --------------
 
-!!! NOTE !!!
-
 <div class="Box Box--danger"><div class="Box-body">
+
+:warning::warning::warning: NOTE :warning::warning::warning:
 
 In order to ensure proper access control for the REST API, the application should be deployed to our GCP clusters, with *no ingress* and strictly configured Access Policies. This is important, as anyone who can *call* your instance of Karapace *will have access to everything* you have access to.
 
