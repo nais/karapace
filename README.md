@@ -83,6 +83,6 @@ Commit `nais.yaml` and `.github/workflows/main.yaml` and push to github.
 Usage
 -----
 
-Karapace provides the same API as the Confluent Kafka REST proxy (v1). The [Confluent documentation](https://docs.confluent.io/platform/current/kafka-rest/index.html) should be fairly accurate, but differences may be documented in the [Aiven Karapace readme](https://github.com/aiven/karapace).
+Karapace provides the same API as the Confluent Kafka REST proxy (v1). The [Confluent documentation](https://docs.confluent.io/platform/current/kafka-rest/index.html) should be fairly accurate, but differences may be documented in the [Aiven Karapace project](https://github.com/aiven/karapace). See also this [issue](https://github.com/aiven/karapace/issues/181#issuecomment-828210804).
 
 Karapace will be available using a service address in the cluster (http://application-name.namespace/), assuming you have set proper access policies.
