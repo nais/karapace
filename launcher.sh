@@ -24,4 +24,7 @@ jq --null-input \
 
 cat /app/config.json
 
+echo Dropping potentially confusing env-variables
+for v in $(compgen -A export | grep KARAPACE); do export -n "${v?}"; done
+
 exec /app/.local/bin/karapace /app/config.json
