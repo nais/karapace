@@ -6,7 +6,7 @@ set -o xtrace    # echo commands after variable expansion
 
 registry_host="${KAFKA_SCHEMA_REGISTRY%:*}" # Drop port part
 registry_port="${KAFKA_SCHEMA_REGISTRY##*:}" # Drop host part
-config_path=/app/config.json
+config_path=/tmp/config.json
 
 cat /app/karapace_config.json
 
