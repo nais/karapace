@@ -6,6 +6,7 @@ set -o xtrace    # echo commands after variable expansion
 
 registry_host="${KAFKA_SCHEMA_REGISTRY%:*}" # Drop port part
 registry_port="${KAFKA_SCHEMA_REGISTRY##*:}" # Drop host part
+config_path=/app/config.json
 
 cat /app/karapace_config.json
 
@@ -20,11 +21,11 @@ jq --null-input \
   --arg ssl_certfile "${KAFKA_CERTIFICATE_PATH}" \
   --arg ssl_keyfile "${KAFKA_PRIVATE_KEY_PATH}" \
   --from-file "/app/karapace_config.json" \
-  > "/app/config.json"
+  > "${config_path}"
 
-cat /app/config.json
+cat "${config_path}"
 
 echo Dropping potentially confusing env-variables
 for v in $(compgen -A export | grep KARAPACE); do export -n "${v?}"; done
 
-exec /app/.local/bin/karapace /app/config.json
+exec /app/.local/bin/karapace "${config_path}"
