@@ -16,7 +16,7 @@ ENV KARAPACE_SHA=4737f82cb685444aaa49d6aabb5edc0a6e0392ea
 # TODO: Remove version hack when https://github.com/aiven/karapace/issues/157 is fixed
 RUN mkdir -p /build && \
     curl --location https://github.com/aiven/karapace/archive/${KARAPACE_SHA}.tar.gz | tar xzv -C /build  --strip-components=1 && \
-    echo "__version__ = '2.0.1+nav.1'" > /build/karapace/version.py
+    echo "__version__ = '2.0.1+nav.2'" > /build/karapace/version.py
 RUN pip wheel -r /build/requirements.txt --no-cache-dir --wheel-dir=/build/wheels/ && \
     pip wheel /build/ --no-deps --no-index --no-cache-dir --find-links=/build/wheels/ --wheel-dir=/build/wheels/
 

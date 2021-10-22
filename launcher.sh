@@ -8,6 +8,10 @@ registry_host="${KAFKA_SCHEMA_REGISTRY%:*}" # Drop port part
 registry_port="${KAFKA_SCHEMA_REGISTRY##*:}" # Drop host part
 config_path=/tmp/config.json
 
+echo "=== User info"
+id
+
+echo "=== Config template"
 cat /app/karapace_config.json
 
 jq --null-input \
@@ -23,9 +27,10 @@ jq --null-input \
   --from-file "/app/karapace_config.json" \
   > "${config_path}"
 
+echo "=== Generated config"
 cat "${config_path}"
 
-echo Dropping potentially confusing env-variables
+echo "=== Dropping potentially confusing env-variables"
 for v in $(compgen -A export | grep KARAPACE); do export -n "${v?}"; done
 
 exec /app/.local/bin/karapace "${config_path}"
