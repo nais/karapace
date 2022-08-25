@@ -33,4 +33,4 @@ cat "${config_path}"
 echo "=== Dropping potentially confusing env-variables"
 for v in $(compgen -A export | grep KARAPACE); do export -n "${v?}"; done
 
-exec /app/.local/bin/karapace "${config_path}"
+exec python3 -m karapace.karapace_all "${config_path}"
