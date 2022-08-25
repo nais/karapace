@@ -9,6 +9,10 @@ spec:
   image: {{image}}
   liveness:
     path: "/"
+  startup:
+    failureThreshold: 10
+    initialDelay: 20
+    path: "/"
   readiness:
     path: "/brokers"
   replicas:
