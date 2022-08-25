@@ -1,36 +1,47 @@
 name: Create docker image
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
-    branch: main
 
 env:
-  "BASEIMAGE": "ghcr.io/${{ github.repository }}"
+  BASE_IMAGE: "ghcr.io/${{ github.repository }}"
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: "Set image version"
-      id: set-image-tag
-      run: |
-        export IMAGE="${BASEIMAGE}:$(date +%Y%m%d%H%M%S)-$(git describe --always --dirty --exclude '*')"
-        echo "IMAGE=${IMAGE}" >> $GITHUB_ENV
-        echo "::set-output name=image::${IMAGE}"
-    - name: Login to GitHub Packages Docker Registry
-      uses: docker/login-action@ab80d026d4753220c4243394c07c7d80f9638d06 # Use commit-sha1 instead of tag for security concerns
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: "Build and publish Docker image"
-      run: |
-        docker build --pull --tag ${IMAGE} --tag ${BASEIMAGE}:latest .
-        docker push --all-tags ${BASEIMAGE}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GitHub Packages Docker Registry
+        uses: docker/login-action@ab80d026d4753220c4243394c07c7d80f9638d06 # Use commit-sha1 instead of tag for security concerns
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker meta
+        id: metadata
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.BASE_IMAGE }}
+          tags: |
+            type=raw,value={{date 'YYYYMMDDhhmmss'}}-{{sha}}
+            type=raw,value=latest
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
     outputs:
-      image: "${{ steps.set-image-tag.outputs.image }}"
+      image: "${{ fromJSON(steps.metadata.outputs.json).tags[0] }}"
   deploy:
     name: "deploy for testing"
     runs-on: ubuntu-latest
