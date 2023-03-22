@@ -9,6 +9,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18 # ratchet:docker/setup-qemu-action@v2
