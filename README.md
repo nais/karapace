@@ -86,3 +86,24 @@ Usage
 Karapace provides the same API as the Confluent Kafka REST proxy (v1). The [Confluent documentation](https://docs.confluent.io/platform/current/kafka-rest/index.html) should be fairly accurate, but differences may be documented in the [Aiven Karapace project](https://github.com/aiven/karapace). See also this [issue](https://github.com/aiven/karapace/issues/181#issuecomment-828210804).
 
 Karapace will be available using a service address in the cluster (http://application-name.namespace/), assuming you have set proper access policies.
+
+Verifying the Karapace image and its contents
+-----
+
+The image is signed "keylessly" using [Sigstore cosign](https://github.com/sigstore/cosign).
+To verify its authenticity run
+```
+cosign verify \
+--certificate-identity "https://github.com/nais/karapace/.github/workflows/main.yaml@refs/heads/main" \
+--certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+ghcr.io/nais/karapace@sha256:<shasum>
+```
+
+The images are also attested with SBOMs in the [CycloneDX](https://cyclonedx.org/) format.
+You can verify these by running
+```
+cosign verify-attestation --type cyclonedx \
+--certificate-identity "https://github.com/nais/karapace/.github/workflows/main.yaml@refs/heads/main" \
+--certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+ghcr.io/nais/karapace@sha256:<shasum>
+```
