@@ -1,12 +1,12 @@
-
+import base64
 import json
+import pytest
 import random
 import string
-
-import pytest
+from pprint import pprint
 from requests_toolbelt import sessions
 
-TEST_TOPIC = "aura.aivia-test"
+TEST_TOPIC = "nais.aivia-test"
 
 
 class TestKarapace():
@@ -21,23 +21,48 @@ class TestKarapace():
         return "".join(message)
 
     def test_karapace(self, session, message):
-        self.produce_message(session, message)
-        self.consume_message(session, message)
-
-    def produce_message(self, session, message):
-        session.post(f"/topics/{TEST_TOPIC}", json={"records": [{"value": message}]})
-
-    def consume_message(self, session, message):
-        name = "test" + random.choice(string.ascii_lowercase)
-        resp = session.post(f"/consumers/{name}", json={"name": name, "format": "binary", "auto.offset.reset": "earliest"})
-        resp.raise_for_status()
-        consumer_id = resp.json()["instance_id"]
+        name, consumer_id = _create_consumer_subscription(session)
         try:
-            resp = session.post(f"/consumers/{name}/instances/{consumer_id}/subscription", json={"topics": TEST_TOPIC})
-            resp.raise_for_status()
-            resp = session.get(f"/consumers/{name}/instances/{consumer_id}/records", headers={"Accept": "application/vnd.kafka.binary.v2+json"})
-            resp.raise_for_status()
-            records = json.loads(resp.content.decode("utf-8", errors="ignore"))
-            assert any(r["value"] == message for r in records)
+            produce_message(session, message)
+            consume_message(session, name, consumer_id, message)
         finally:
-            session.delete(f"/consumers/{name}/instances/{consumer_id}")
+            _delete_consumer(session, name, consumer_id)
+
+
+def produce_message(session, message):
+    record = {"value": base64.b64encode(message.encode("utf-8")).decode("utf-8")}
+    resp = session.post(f"/topics/{TEST_TOPIC}", json={"records": [record]})
+    resp.raise_for_status()
+    offset_data = resp.json()["offsets"][0]
+    print(f"Produced record {record} for message {message} to topic {TEST_TOPIC}")
+    print(f"The record was produced to partition {offset_data['partition']} at offset {offset_data['offset']}")
+
+
+def consume_message(session, name, consumer_id, message):
+    try:
+        resp = session.get(f"/consumers/{name}/instances/{consumer_id}/records",
+                           headers={"Accept": "application/vnd.kafka.binary.v2+json"})
+        resp.raise_for_status()
+        records = json.loads(resp.content.decode("utf-8", errors="ignore"))
+        print(f"Received {len(records)} records")
+        pprint(records)
+        values = [base64.b64decode(r["value"].encode("utf-8")).decode("utf-8") for r in records]
+        print(f"Values: {values}")
+        assert any(v == message for v in values)
+    finally:
+        resp = session.delete(f"/consumers/{name}/instances/{consumer_id}")
+        resp.raise_for_status()
+
+
+def _create_consumer_subscription(session):
+    name = "test_" + "".join(random.choice(string.ascii_lowercase) for _ in range(8))
+    resp = session.post(f"/consumers/{name}", json={"name": name, "format": "binary", "auto.offset.reset": "latest"})
+    resp.raise_for_status()
+    consumer_id = resp.json()["instance_id"]
+    resp = session.post(f"/consumers/{name}/instances/{consumer_id}/subscription", json={"topics": TEST_TOPIC})
+    resp.raise_for_status()
+    return name, consumer_id
+
+
+def _delete_consumer(session, name, consumer_id):
+    session.delete(f"/consumers/{name}/instances/{consumer_id}")

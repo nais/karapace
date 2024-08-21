@@ -14,7 +14,7 @@ def main():
     env_builder.create(venv_dir)
     subprocess.check_call([os.path.join(venv_dir, "bin", "pip"), "install", "wheel"])
     subprocess.check_call([os.path.join(venv_dir, "bin", "pip"), "install", "requests", "requests-toolbelt", "pytest", "pytest-sugar"])
-    with subprocess.Popen(["kubectl", "--context=dev-gcp", "--namespace=aura", "port-forward", "svc/karapace-test", "8080:80"]) as pf:
+    with subprocess.Popen(["kubectl", "--context=nav-dev-gcp", "--namespace=nais", "port-forward", "svc/karapace-test", "8080:80"]) as pf:
         try:
             time.sleep(5)
             return subprocess.call([os.path.join(venv_dir, "bin", "pytest")])
