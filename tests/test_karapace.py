@@ -6,7 +6,7 @@ import string
 from pprint import pprint
 from requests_toolbelt import sessions
 
-TEST_TOPIC = "nais.aivia-test"
+TEST_TOPIC = "nais.karapace-test"
 
 
 class TestKarapace():

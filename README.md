@@ -42,12 +42,13 @@ spec:
     cpuThresholdPercentage: 50
   prometheus:
     enabled: false
-  limits:
-    cpu: "200m"
-    memory: "256Mi"
-  requests:
-    cpu: "200m"
-    memory: "256Mi"
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
   kafka:
     pool: nav-dev
 ```
@@ -70,7 +71,6 @@ jobs:
       - uses: "actions/checkout@v2"
       - uses: nais/deploy/actions/deploy@v1
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: nais.yaml
 ```
