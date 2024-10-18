@@ -1,4 +1,4 @@
-FROM ghcr.io/aiven-open/karapace:3.15.1
+FROM ghcr.io/aiven-open/karapace:4.0.0
 LABEL maintainer=aura@nav.no
 
 USER root
