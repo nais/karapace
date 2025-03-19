@@ -18,8 +18,33 @@ jobs:
       id-token: write
     steps:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # ratchet:actions/checkout@v3
+      - name: Determine what to do
+        id: changed-files
+        shell: python
+        env:
+          RESOURCES: nais/nais.yaml,nais/topic.yaml
+        run: |
+          import os
+          import glob
+          from itertools import chain
+          import subprocess
+          
+          changed_files=set(subprocess.run(["git", "diff", "--name-only", "${{ github.event.before }}", "${{ github.event.after }}"], capture_output=True, text=True).stdout.splitlines())
+          resource_files = set(chain(*(glob.glob(f) for f in os.getenv("RESOURCES", "").split(","))))
+          if changed_files < resource_files:
+            print("Only resources have been changed")
+            output = "only-resources"
+          elif resource_files.isdisjoint(changed_files):
+            print("No resources have been changed")
+            output = "non-resources"
+          else:
+            output = "all"
+          
+          with open(os.getenv("GITHUB_OUTPUT"), "a") as f:
+            f.write(f"changed={output}\n")
       - uses: nais/platform-build-push-sign@main
         id: build-push-sign
+        if: steps.changed-files.outputs.changed != 'only-resources'
         with:
           name: karapace
           google_service_account: gh-karapace
@@ -34,9 +59,9 @@ jobs:
     needs: build
     steps:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # ratchet:actions/checkout@v2
-      - uses: nais/deploy/actions/deploy@0bca2c7e607d30fd757a2a23fb7d07b3ff96d540 # ratchet:nais/deploy/actions/deploy@v1
+      - uses: nais/deploy/actions/deploy@v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: nais/nais.yaml,nais/topic.yaml
-          VAR: image=${{ needs.build.outputs.image }}
+          WORKLOAD_IMAGE: ${{ needs.build.outputs.image }}
