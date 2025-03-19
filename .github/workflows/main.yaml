@@ -30,7 +30,10 @@ jobs:
           import subprocess
           
           changed_files=set(subprocess.run(["git", "diff", "--name-only", "${{ github.event.before }}", "${{ github.event.after }}"], capture_output=True, text=True).stdout.splitlines())
+          print(f"::debug::Changed files: {changed_files}")
           resource_files = set(chain(*(glob.glob(f) for f in os.getenv("RESOURCES", "").split(","))))
+          print(f"::debug::Resource files: {resource_files}")
+
           if changed_files < resource_files:
             print("Only resources have been changed")
             output = "only-resources"
