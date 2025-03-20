@@ -16,8 +16,17 @@ jobs:
       contents: read
       packages: write
       id-token: write
+      actions: read
+      pull-requests: read
     steps:
-      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # ratchet:actions/checkout@v3
+      - uses: "actions/checkout@v4"
+        with:
+          fetch-depth: 0
+      - name: Find start and end SHAs
+        uses: nrwl/nx-set-shas@v4
+        id: last-successful-commit-push
+        with:
+          main-branch-name: main
       - name: Determine what to do
         id: changed-files
         shell: python
@@ -29,7 +38,7 @@ jobs:
           from itertools import chain
           import subprocess
           
-          changed_files=set(subprocess.run(["git", "diff", "--name-only", "${{ github.event.before }}", "${{ github.event.after }}"], capture_output=True, text=True).stdout.splitlines())
+          changed_files=set(subprocess.run(["git", "diff", "--name-only", "${{ steps.last-successful-commit-push.outputs.base }}", "${{ steps.last-successful-commit-push.outputs.head }}"], capture_output=True, text=True).stdout.splitlines())
           print(f"::debug::Changed files: {changed_files}")
           resource_files = set(chain(*(glob.glob(f) for f in os.getenv("RESOURCES", "").split(","))))
           print(f"::debug::Resource files: {resource_files}")
