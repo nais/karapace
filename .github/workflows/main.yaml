@@ -63,6 +63,7 @@ jobs:
           push: ${{ github.actor != 'dependabot[bot]' && github.ref == 'refs/heads/main' }}
           workload_identity_provider: ${{ secrets.NAIS_IO_WORKLOAD_IDENTITY_PROVIDER }}
     outputs:
+      changed: "${{ steps.changed-files.outputs.changed }}"
       image: "${{ steps.build-push-sign.outputs.tag }}"
   deploy:
     name: "deploy for testing"
@@ -72,8 +73,16 @@ jobs:
     steps:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # ratchet:actions/checkout@v2
       - uses: nais/deploy/actions/deploy@v2
+        if: needs.build.outputs.changed != 'non-resources'
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: nais/nais.yaml,nais/topic.yaml
+          WORKLOAD_IMAGE: ${{ needs.build.outputs.image }}
+      - uses: nais/deploy/actions/deploy@v2
+        if: needs.build.outputs.changed == 'non-resources'
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          WORKLOAD_NAME: karapace-test
           WORKLOAD_IMAGE: ${{ needs.build.outputs.image }}
