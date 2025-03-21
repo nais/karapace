@@ -7,7 +7,7 @@ concurrency:
 on:
   push:
     paths-ignore:
-    - "*.md"
+      - "*.md"
 
 jobs:
   build:
@@ -20,43 +20,14 @@ jobs:
       pull-requests: read
     steps:
       - uses: "actions/checkout@v4"
-        with:
-          fetch-depth: 0
-      - name: Find start and end SHAs
-        uses: nrwl/nx-set-shas@v4
-        id: last-successful-commit-push
-        with:
-          main-branch-name: main
       - name: Determine what to do
         id: changed-files
-        shell: python
-        env:
-          RESOURCES: nais/nais.yaml,nais/topic.yaml
-        run: |
-          import os
-          import glob
-          from itertools import chain
-          import subprocess
-          
-          changed_files=set(subprocess.run(["git", "diff", "--name-only", "${{ steps.last-successful-commit-push.outputs.base }}", "${{ steps.last-successful-commit-push.outputs.head }}"], capture_output=True, text=True).stdout.splitlines())
-          print(f"::debug::Changed files: {changed_files}")
-          resource_files = set(chain(*(glob.glob(f) for f in os.getenv("RESOURCES", "").split(","))))
-          print(f"::debug::Resource files: {resource_files}")
-
-          if changed_files < resource_files:
-            print("Only resources have been changed")
-            output = "only-resources"
-          elif resource_files.isdisjoint(changed_files):
-            print("No resources have been changed")
-            output = "non-resources"
-          else:
-            output = "all"
-          
-          with open(os.getenv("GITHUB_OUTPUT"), "a") as f:
-            f.write(f"changed={output}\n")
+        uses: "nais/what-changed@main"
+        with:
+          files: "nais/nais.yaml,nais/topic.yaml"
       - uses: nais/platform-build-push-sign@main
         id: build-push-sign
-        if: steps.changed-files.outputs.changed != 'only-resources'
+        if: steps.changed-files.outputs.changed != 'only-inputs'
         with:
           name: karapace
           google_service_account: gh-karapace
@@ -74,7 +45,7 @@ jobs:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # ratchet:actions/checkout@v2
       - uses: nais/deploy/actions/deploy@v2
         name: Deploy resources and image if built
-        if: needs.build.outputs.changed != 'non-resources'
+        if: needs.build.outputs.changed != 'non-inputs'
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
@@ -82,11 +53,10 @@ jobs:
           WORKLOAD_IMAGE: ${{ needs.build.outputs.image }}
       - uses: nais/deploy/actions/deploy@v2
         name: Deploy only updated image
-        if: needs.build.outputs.changed == 'non-resources'
+        if: needs.build.outputs.changed == 'non-inputs'
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           WORKLOAD_NAME: karapace-test
           WORKLOAD_IMAGE: ${{ needs.build.outputs.image }}
           TEAM: nais
-
