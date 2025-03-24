@@ -107,3 +107,14 @@ cosign verify-attestation --type cyclonedx \
 --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
 ghcr.io/nais/karapace@sha256:<shasum>
 ```
+
+
+Development
+-----------
+
+After making changes, karapace will be deployed to the nais namespace of nav-dev-gcp for testing.
+Using mise, you can run a simple integration test:
+
+```shell
+mise run integration-test
+```

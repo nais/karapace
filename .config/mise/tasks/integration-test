@@ -1,0 +1,33 @@
+#!/usr/bin/env -S uv run --script
+#MISE description="Run integration tests"
+
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#   "requests",
+#   "requests-toolbelt",
+#   "pytest",
+#   "pytest-sugar",
+# ]
+# ///
+
+import subprocess
+import time
+
+from pytest import console_main
+
+
+def main():
+    with subprocess.Popen(["kubectl", "--context=nav-dev-gcp", "--namespace=nais", "port-forward", "svc/karapace-test",
+                           "8080:80"]) as pf:
+        try:
+            time.sleep(5)
+            return console_main()
+        finally:
+            pf.terminate()
+
+
+if __name__ == '__main__':
+    import sys
+
+    sys.exit(main())
