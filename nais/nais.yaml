@@ -4,7 +4,6 @@ metadata:
   name: "karapace-test"
   namespace: "nais"
 spec:
-  image: "{{image}}"
   liveness:
     path: "/"
   startup:

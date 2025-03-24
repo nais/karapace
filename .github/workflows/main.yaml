@@ -29,7 +29,7 @@ jobs:
           files: "nais/nais.yaml,nais/topic.yaml"
       - uses: nais/platform-build-push-sign@main
         id: build-push-sign
-        # if: steps.changed-files.outputs.changed != 'only-inputs'
+        if: steps.changed-files.outputs.changed != 'only-inputs'
         with:
           name: karapace
           google_service_account: gh-karapace
@@ -51,4 +51,4 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           RESOURCE: nais/nais.yaml,nais/topic.yaml
-          IMAGE: ${{ needs.build.outputs.image }}
+          WORKLOAD_IMAGE: ${{ needs.build.outputs.image }}
