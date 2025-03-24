@@ -20,6 +20,8 @@ jobs:
       pull-requests: read
     steps:
       - uses: "actions/checkout@v4"
+        with:
+          fetch-depth: 0
       - name: Determine what to do
         id: changed-files
         uses: "nais/what-changed@main"
